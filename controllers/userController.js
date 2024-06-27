@@ -2,9 +2,16 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const createError = require('http-errors');
 const User = require('../models/user/userSchema');
+const { validationResult } = require('express-validator')
 
 const SignUp = async (req, res, next) => {
     try {
+        // Validating req object 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(createError(400, { message: "Validation failed", errors: errors.array() }));
+        }
+
         const { username, email, password, role } = req.body;
         // Check for missing fields
         if (!username || !email || !password || !role) {
@@ -26,7 +33,7 @@ const SignUp = async (req, res, next) => {
         const { password: _, __v, createdAt, updatedAt, ...user } = newUser._doc; 
         res.status(201).json({
             message: "User successfully signed up",
-            user // contains user details except password
+            user // contains user details except password, __v, createdAt and updatedAt
         });
 
     } catch (error) {
@@ -40,6 +47,11 @@ const SignUp = async (req, res, next) => {
 
 const SignIn = async (req, res, next) => {
     try {
+        // Validating req object
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(createError(400, { message: "Validation failed", errors: errors.array() }));
+        }
         const { email, password } = req.body;
         if (!email || !password) {
             return next(createError(400, "Missing required fields"));
@@ -58,7 +70,7 @@ const SignIn = async (req, res, next) => {
         const accessToken = jwt.sign(
             { userId: user.id, email: user.email },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '30m' }
         );
 
         const refreshToken = jwt.sign(
@@ -66,9 +78,23 @@ const SignIn = async (req, res, next) => {
             process.env.REFRESH_TOKEN_SECRET
         );
 
-        res.json({
-            accessToken,
-            refreshToken,
+        // Determine if in development or production mode
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            maxAge: 30 * 60 * 1000 // 30 minutes expiry, in milliseconds
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+        });
+
+        // Respond with success message (optional)
+        res.status(200).json({
+            status: "success",
             message: "User sign in successful"
         });
 
