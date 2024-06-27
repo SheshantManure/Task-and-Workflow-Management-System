@@ -4,12 +4,13 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const { ApolloServer } = require('@apollo/server')
 const { expressMiddleware } = require("@apollo/server/express4");
-const typeDefs = require('./graphQL/typeDefs')
-const resolvers = require('./graphQL/resolvers')
+const taskTypeDefs = require('./graphQL/typeDefs/taskTypeDefs')
+const taskSubtaskResolvers = require('./graphQL/resolvers/taskSubtaskResolvers')
 require('dotenv').config()
 
 // Importing Routes
 const userRoutes = require('./routes/userRoutes');
+const taskManagementRoutes = require('./routes/taskManagementRoutes')
 
 const __init__ = async () => {
     // To parse application/json
@@ -18,12 +19,15 @@ const __init__ = async () => {
     // CORS configuration for allowed origin
     app.use(cors({
         origin: `${process.env.CLIENT_URL}`,
-        credentials: true // to set cookies
+        credentials: true // to set cookies on the client - JWT accessToken and refreshToken after sign in
     }));
 
     app.use('/user', userRoutes)
+    app.use('/task-management', taskManagementRoutes)
 
     // Setting up GraphQL server using Apollo Server
+    const typeDefs = [ taskTypeDefs ]
+    const resolvers = [ taskSubtaskResolvers ]
     const graphQL = new ApolloServer({ typeDefs, resolvers });
     await graphQL.start()
     // Routing the GraphQL server at route /graphql

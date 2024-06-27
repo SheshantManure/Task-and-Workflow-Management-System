@@ -23,7 +23,11 @@ const subTaskSchema = new mongoose.Schema({
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    AssignedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
 }, {
     timestamps: true
 });
