@@ -4,7 +4,9 @@ const User = require('../models/user/userSchema');
 
 const authenticate = async (req, res, next) => {
     try {
-        const { accesstoken: accessToken, refershtoken: refreshToken } = req.headers;
+        const accessToken = req.cookies.accessToken || req.headers.accessToken || ''
+        const refreshToken = req.cookies.refreshToken || req.headers.refreshToken || ''
+
         if (!accessToken) {
             return next(createError(401, "Access token is required"));
         }

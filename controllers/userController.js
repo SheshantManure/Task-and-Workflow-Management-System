@@ -68,13 +68,23 @@ const SignIn = async (req, res, next) => {
         }
 
         const accessToken = jwt.sign(
-            { userId: user.id, email: user.email },
+            { 
+              userId: user.id, 
+              username: user.username,
+              email: user.email,
+              role: user.role
+            },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '30m' }
         );
 
         const refreshToken = jwt.sign(
-            { userId: user.id, email: user.email },
+            { 
+                userId: user.id, 
+                username: user.username,
+                email: user.email,
+                role: user.role
+            },
             process.env.REFRESH_TOKEN_SECRET
         );
 
@@ -92,7 +102,7 @@ const SignIn = async (req, res, next) => {
             secure: isProduction,
         });
 
-        // Respond with success message (optional)
+        // Respond with success message
         res.status(200).json({
             status: "success",
             message: "User sign in successful"

@@ -16,7 +16,7 @@ const subTaskSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['todo', 'inProgress', 'done'],
+        enum: ['todo', 'in progress', 'done'],
         default: 'todo',
         required: true
     },
@@ -24,10 +24,15 @@ const subTaskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    AssignedBy: {
+    assignedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 }, {
     timestamps: true
 });

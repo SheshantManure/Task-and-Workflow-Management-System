@@ -9,27 +9,21 @@ type Task {
   description: String!
   status: String!
   assignedTo: ID
-  AssignedBy: ID
+  assignedBy: ID
   createdBy: ID!
-  subTasks: [ID!]
+  subTasks: [ID!]!
   createdAt: String!
   updatedAt: String!
 }
 
-type SubTask {
-  id: ID!
-  task_id: ID!
-  title: String!
-  description: String!
-  status: String!
-  assignedTo: ID
-  createdAt: String!
-  updatedAt: String!
+type Delete {
+  message: String!
 }
 
 type Mutation {
-  createTask( title: String!, description: String!, status: String, assignedTo: ID, assignedBy: ID, createdBy: ID ): Task!
-  createSubtask( task_id: ID!, title: String!, description: String!, status: String!, assignedTo: ID, assignedBy: ID ): SubTask!
+  createTask( title: String!, description: String!, status: String, assignedTo: ID ): Task!
+  updateTask( taskId: ID!, title: String, description: String, status: String, assignedTo: ID ): Task!
+  deleteTask(taskId: ID!): Delete!
 }
 `;
   
