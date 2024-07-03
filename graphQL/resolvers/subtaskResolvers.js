@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const subtaskResolvers = {
     Mutation: {
-        createSubtask: async (_, { task_id, title, description, status, assignedTo }, context) => {
+        createSubtask: async (_, { task_id, title, description, status, assignedTo, deadline }, context) => {
             try {
                 // Check if user is authenticated and role is admin or project_manager
                 if (!context.user || (context.user.role !== "admin" && context.user.role !== "project_manager")) {
@@ -26,6 +26,7 @@ const subtaskResolvers = {
                     assignedTo: assignedTo || null,
                     assignedBy: assignedTo ? new mongoose.Types.ObjectId(context.user.userId) : null,
                     createdBy: new mongoose.Types.ObjectId(context.user.userId),
+                    deadline: new Date(deadline)
                 });
 
                 // Save the SubTask to MongoDB
@@ -56,7 +57,7 @@ const subtaskResolvers = {
                     throw createError(403, 'Unauthorized! User ID is missing.');
                 }
 
-                const { subtask_id, title, description, status, assignedTo } = input;
+                const { subtask_id, title, description, assignedTo, deadline } = input;
 
                 // Find the subtask by ID
                 let subtask = await SubTask.findById(subtask_id);
@@ -68,11 +69,11 @@ const subtaskResolvers = {
                 // Update fields if provided
                 if (title) subtask.title = title;
                 if (description) subtask.description = description;
-                if (status) subtask.status = status;
                 if (assignedTo) {
                     subtask.assignedTo = new mongoose.Types.ObjectId(assignedTo);
                     subtask.assignedBy = new mongoose.Types.ObjectId(context.user.userId);
                 }
+                if (deadline) subtask.deadline = new Date(deadline)
                 // Save the updated subtask
                 const updatedSubtask = await subtask.save();
                 return updatedSubtask;
@@ -114,6 +115,36 @@ const subtaskResolvers = {
             } catch (error) {
                 console.error('Error deleting subtask:', error);
                 throw createError(500, `Failed to delete subtask: ${error.message}`);
+            }
+        },
+
+        updateSubtaskStatus: async (_, { subtask_id, status }, context) => {
+            try {
+                // Ensure context.user.userId is valid
+                if (!context.user || !context.user.userId) {
+                    throw createError(403, 'Unauthorized! User ID is missing.');
+                }
+
+                // Find the subtask by ID
+                let subtask = await SubTask.findById(subtask_id);
+
+                // If subtask does not exist, throw 404 error
+                if (!subtask) {
+                    throw createError(404, `Subtask with ID ${subtask_id} not found.`);
+                }
+
+                // Update the status field if provided
+                if (status) {
+                    subtask.status = status;
+                }
+
+                // Save the updated subtask
+                const updatedSubtask = await subtask.save();
+
+                return updatedSubtask;
+            } catch (error) {
+                console.error('Error updating subtask status:', error);
+                throw createError(500, `Failed to update subtask status: ${error.message}`);
             }
         }
     }

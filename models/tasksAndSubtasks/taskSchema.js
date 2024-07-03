@@ -32,6 +32,14 @@ const taskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'SubTask'
     }],
+    dependencies: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task'
+    }],
+    deadline: {
+        type: Date,
+        required: true,
+    }
 }, {
     timestamps: true
 });

@@ -14,6 +14,7 @@ const subtaskTypeDefs = `
         updatedAt: String!
         createdBy: ID!
         assignedBy: ID
+        deadline: String
     }
 
     type Delete {
@@ -21,9 +22,10 @@ const subtaskTypeDefs = `
     }
 
     type Mutation {
-        createSubtask(task_id: ID!, title: String!, description: String!, status: String, assignedTo: ID, assignedBy: ID): SubTask!
-        updateSubtask(subtask_id: ID!, title: String, description: String, status: String, assignedTo: ID, assignedBy: ID): SubTask!
+        createSubtask(task_id: ID!, title: String!, description: String!, status: String, assignedTo: ID, assignedBy: ID, deadline: String): SubTask!
+        updateSubtask(subtask_id: ID!, title: String, description: String, status: String, assignedTo: ID, assignedBy: ID, deadline: String): SubTask!
         deleteSubtask(subtask_id: ID!): Delete!
+        updateSubtaskStatus( subtask_id: ID!, status: String! ): SubTask!
     }
 `;
 
